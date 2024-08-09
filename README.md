@@ -10,3 +10,11 @@ Decentralized AI sharing services
 由于，MixTeX希望延续开源和共享精神，并且数学物理的问答与识别都是针对学生和科研工作者，我们不愿商业化污染这片净土。
 
 因此，仅靠捐赠我们是无法承担高昂的高性能在线gpu服务，也就有了我们的去中心化服务的草图，我们希望有计算资源（至少GTX1060）的同学，能够做出一些贡献，将自己的电脑作为gpu计算节点，服务器会根据节点状态分发用户请求。
+
+This was the website I previously used for online deployment. The principle is to send users' images to the server, which then forwards them to my host. My GPU performs inference on them, and the results are sent back to the server and then to the users.
+
+Our plan, as shown in the target on the right side of the image, requires professional volunteers in the network domain to perfect it. We aim to make this decentralized. Future open-source community models will continue to improve, and MixTeX will eventually release larger parameter Q&A models. At that point, it will be difficult to run the models locally with a CPU, but many students have thin laptops without GPUs.
+
+Because MixTeX wishes to continue the spirit of open source and sharing, and since mathematical and physical Q&A and recognition are aimed at students and researchers, we are reluctant to commercialize this pure field.
+
+Therefore, relying solely on donations, we cannot afford the high costs of high-performance online GPU services. This led to the draft of our decentralized service. We hope that students with computing resources (at least a GTX 1060) can contribute by turning their computers into GPU computing nodes. The server will distribute user requests based on the status of these nodes.
