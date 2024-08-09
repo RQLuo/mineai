@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数玄透镜 MaThaumoMeter</title>
+    <link rel="icon" href="https://i2.mcmod.cn/item/icon/128x128/7/77292.png?v=9" type="image/png">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css">
+    <script src="https://docs.opencv.org/4.5.5/opencv.js"></script>
+    <!-- Include MathJax script -->
+    <script async src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <py-env>
+      - Pillow
+    </py-env>
+    <script>
+      MathJax = {
+        tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+      };
+    </script>
+    <style>
+        img {
+            display: inline;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            margin: 20px;
+            max-width: 765px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #logo {
+            width: 50px;
+            height: 50px;
+            position: relative;
+            top: -3px;
+            left: 27.6%;
+            transform: translateX(-50%);
+        }
+
+        #progress-bar {
+            height: 10px;
+            background-color: #ddd;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            border-radius: 3px;
+            margin-top: 20px;
+            max-width: 765px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #progress-bar-inner {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0;
+            transition: width 0s linear;
+        }
+
+        #latex-container {
+            margin-top: 20px;
+            padding: 30px;
+            border: 1px solid #ccc;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            max-width: 765px;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: "Times New Roman", serif;
+        }
+
+        #drop-zone {
+            margin-top: 10px;
+            border: 2px dashed #ccc;
+            border-radius: 7px;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            max-width: 765px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #drop-zone img {
+            margin-left: auto;
+            margin-right: auto;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 200px;
+            margin: 10px 10px;
+            max-width: 600px;
+        }
+
+        #buttons-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .upload-button, .clear-button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-size: 15px;
+            border: none;
+            border-radius: 5px;
+            color: #000000;
+            font-weight: bold;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+
+        .upload-button, .clear-button {
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgb(67, 67, 67);
+        }
+
+        .upload-button:hover {
+            background-color: #8989899d;
+        }
+
+        .clear-button:hover {
+            background-color: #810000;
+            color: #ffffff;
+        }
+
+        .upload-button:active, .clear-button:active {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transform: translateY(2px);
+        }
+        header,h4 {
+            text-align: center;
+        }
+        section {
+            margin-left: 30px;
+            margin-right: 30px;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+        }
+        h4 {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+        #latex-input {
+            margin-top: 20px;
+            border: 2px solid #00000069;
+            width: 100%;
+            height: 100px;
+            border-radius: 5px;
+        }
+        .result-container {
+            text-align: center;
+        }
+
+        .action-buttons {
+          margin-top: 10px;
+          display: flex;
+          justify-content: space-between;
+        }
+
+        .tags-container {
+          text-align: left;
+        }
+
+        .buttons-container {
+          text-align: right;
+        }
+
+        button {
+            background-color: transparent;
+            color: #919191;
+            border: none;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+
+        button:hover {
+            color: #000000;
+        }
+        .qq-container {
+      position: relative;
+      display: inline-block;
+    }
+    .popup {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      padding: 10px;
+      z-index: 1000;
+    }
+    .popup img {
+      max-width: 100%;
+      height: auto;
+    }
+    .close-btn {
+      cursor: pointer;
+      position: absolute;
+      top: 5px;
+      right: 5px;
+    }
+    .thumbs-up-success {
+      color: #00640c !important;
+    }
+    .edit-success {
+      color: #005490 !important;
+    }
+
+    .thumbs-down-failure {
+      color: #800000 !important;
+    }
+.info {
+    color: rgb(111, 111, 111);
+    font-size: smaller;
+}
+
+.count {
+    color: #4a9e53;
+    font-size: smaller;
+}
+.tag {
+    border: 1px solid #353657;
+    display: inline-block;
+    background-color: rgba(232, 232, 232, 0.1);
+    padding: 2px 5px;
+    border-radius: 5px;
+}
+    </style>
+</head>
+<body>
+        <header>
+          <h1><img id="logo" src="https://i2.mcmod.cn/item/icon/128x128/7/77292.png?v=9" alt="Logo"> 数玄透镜 MaThaumoMeter</h1>
+        </header>
+        <h4>欢迎体验数玄透镜，一款专注于 LaTeX 英文混合公式的 OCR 识别工具。</h4>
+
+<div id="drop-zone" onclick="openFileExplorer()">
+    <h4>拖拽或单击后Ctrl-V图片到此处，或双击选择图片文件。</h4>
+    <p>Drag and drop or clik and Ctrl-V to insert an image here, or double-click to select an image file.</p>
+</div>
+
+<div id="progress-bar">
+    <div id="progress-bar-inner"></div>
+</div>
+
+<p id="latex-container"></p>
+<textarea id="latex-input" oninput="updateMath()"></textarea>
+
+<div class="action-buttons">
+  <div class="tags-container">
+      <span class="tag">
+          <span class="info">24小时内剩余识别</span>
+          <span class="count" id="left_count">{{ left_count }}</span>
+      </span>
+      <span class="tag">
+          <span class="info">赞踩</span>
+          <span class="count" id="like_count">{{ like_count }}</span>
+      </span>
+      <span class="tag">
+          <span class="info">修改</span>
+          <span class="count" id="feedback_count">{{ feedback_count }}</span>
+      </span>
+      <span class="tag">
+          <span class="info">总识别</span>
+          <span class="count" id="total_upload_count">{{ total_upload_count }}</span>
+      </span>
+      </div>
+       <div class="buttons-container">
+  <button onclick="thumbsUp()" title="点赞">
+    <i class="fas fa-thumbs-up" id="thumbs-up-icon"></i>
+  </button>
+  <button onclick="editResult()" title="上传修改">
+    <i class="fas fa-check-square" id="edit-icon"></i>
+  </button>
+  <button onclick="thumbsDown()" title="点踩">
+    <i class="fas fa-thumbs-down" id="thumbs-down-icon"></i>
+  </button>
+</div>
+</div>
+
+<div id="buttons-container">
+    <button>
+        <i class="fa-brands fa-weixin" id="wechatIcon"></i>
+        <div class="popup" id="wechatPopup">
+          <img src="https://picx.zhimg.com/70/v2-8eb3d80a422698eddb90cc5e0df15fef_1440w.avis?source=172ae18b&biz_tag=Post" alt="QQ Popup">
+          <span class="close-btn" onclick="closePopup('wechatPopup')">&times;</span>
+        </div>
+    </button>
+    <button>
+        <i class="fab fa-qq" id="qqIcon"></i>
+        <div class="popup" id="qqPopup">
+          <img src="https://picx.zhimg.com/70/v2-cb0c8d9b04e2c9f25e9e93d15b0de851_1440w.avis?source=172ae18b&biz_tag=Post" alt="QQ Popup">
+          <span class="close-btn" onclick="closePopup('qqPopup')">&times;</span>
+        </div>
+    </button>
+    <button>
+        <a href="https://space.bilibili.com/8922788?spm_id_from=333.1007.0.0" target="_blank">
+            <i class="fa-brands fa-bilibili"></i>
+            </a>
+    </button>
+    <button>
+        <a href="https://www.zhihu.com/people/lrq-2" target="_blank">
+            <i class="fa-brands fa-zhihu"></i>
+            </a>
+    </button>
+    <button class="upload-button" onclick="copyToClipboardMl()"><i class="fas fa-copy"></i>  MathML(word)</button>
+    <button class="upload-button" onclick="copyToClipboard()"><i class="fas fa-copy"></i>  LaTeX </button>
+    <button class="upload-button" onclick="copyToClipboardMd()"><i class="fas fa-copy"></i>  Markdown</button>
+    <button id="clearButton" class="clear-button" onclick="clearImage()"> <i class="fas fa-trash-alt"></i> 清除 Clear</button>
+</div>
+
+<section>
+    <p> <br> </p>
+    <p> <br> </p>
+    <p> <br> </p>
+    <p><span style="color:rgb(0, 0, 0); font-weight:bold;">如果出现乱码或识别错误，请注意以下几点： </span>
+    <span style="color:rgb(108, 0, 0); font-weight:bold;">1. 避免拦腰截断一个公式或句子。2. 避免出现连续大范围的留白。3. 避免把所有内容挤到一侧其余空白。4.避免混合中文，目前仅支持英文混合公式。5. 上下文本长度最好不超过 3 句+1 公式。</span> </p>
+</section>
+
+<section>
+    <p> <br> </p>
+    <p><span style="color:rgb(0, 0, 0); font-weight:bold;">数玄透镜 MaThaumoMeter</span> 采用了 Meta 开源的大模型，通过一周的测试和漏洞修复，已经能以胜任复杂的识别。可以处理复杂的英文混合公式，无论是基本的数学表达式还是涉及到复杂符号和变量的公式。由于我们基于 BERT 模型，有时可能会出现幻觉，甚至还会自以为是地纠正一些“笔误”，并且还会保留参数较小的大模型的通病，也就是是是是是是是是是是是是是是</p>
+    <p> <br> </p>
+    <p>数玄透镜将帮助您更高效地处理文本混合公式，欢迎您的尝试和反馈。</p>
+    <p>如有疑问可以加QQ群讨论：612725068；此外，群里还有该应用的Windows客户端版本。</p>
+</section>
+
+<script>
+    var fileInput;
+    var textData;
+    var imageId;
+    var feedbackSuccessCount = 0;
+    function updateMath() {
+            var input = document.getElementById('latex-input').value;
+            var output = document.getElementById('latex-container');
+            output.innerHTML = input;
+            MathJax.typeset();
+        }
+    document.getElementById('drop-zone').addEventListener('dragover', function (e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+
+    document.getElementById('drop-zone').addEventListener('dragleave', function () {
+        this.classList.remove('dragover');
+    });
+
+    document.getElementById('drop-zone').addEventListener('drop', function (e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+
+        var file = e.dataTransfer.files[0];
+        handleImg(file, uploadImage);
+    });
+    document.getElementById('drop-zone').addEventListener('paste', (e) => {
+      e.preventDefault();
+      const items = e.clipboardData.items;
+      if(!items) return;
+
+      for (const item of items) {
+        if (item.kind === 'file') {
+          const file = item.getAsFile();
+          handleImg(file, uploadImage);
+        }
+      }
+    });
+    document.getElementById('drop-zone').addEventListener('dblclick', function() {
+        fileInput.click();
+    });
+    function openFileExplorer() {
+    fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.onchange = function () {
+        var file = fileInput.files[0];
+        handleImg(file, uploadImage);
+    };
+}
+
+    function handleImg(file, callback) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+        var img = new Image();
+        img.onload = function() {
+            var src = cv.imread(img);
+            var dst = new cv.Mat();
+            cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
+            let ksize = new cv.Size(5, 1);
+            cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+            cv.adaptiveThreshold(dst, src, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 15, 2);
+            cv.threshold(dst, dst, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU);
+            cv.addWeighted(src, 0.4, dst, 0.6, 0, dst);
+            cv.threshold(dst, dst, 0, 255, cv.THRESH_BINARY);
+            var canvas = document.createElement('canvas');
+            canvas.width = dst.cols;
+            canvas.height = dst.rows;
+            cv.imshow(canvas, dst);
+
+            var processedImg = new Image();
+            processedImg.src = canvas.toDataURL();
+
+            canvas.toBlob(function(blob) {
+                var opencvFile = new File([blob], file.name, {type: file.type});
+                document.getElementById('drop-zone').innerHTML = '';
+                document.getElementById('drop-zone').appendChild(processedImg);
+                pilcomp(opencvFile).then(outimg => {
+                callback(outimg);
+                });
+            }, file.type);
+            src.delete();
+            dst.delete();
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+var leftc = document.getElementById('left_count');
+var lef = parseFloat(leftc.innerText);
+
+    function uploadImage(file) {
+        if (!file) {
+            alert('读取失败 File read failure');
+            return;
+        }
+
+        if (file.size > 30 * 1024) {
+        alert('图片过大，缩小截图尺寸。 The image is too large, reduce the screenshot size.');
+        return;
+    }
+        var formData = new FormData();
+        formData.append('image', file);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '', true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                imageId = response.image_id;
+                var total_count = document.getElementById('total_upload_count');
+                lef--;
+                leftc.innerText = lef;
+                total_count.innerText = parseInt(total_count.innerText) + 1;
+                document.getElementById('drop-zone').style.pointerEvents = 'none';
+                document.getElementById('clearButton').disabled = true;
+                showProgressBar(70, function () {
+                    checkTextData(imageId);
+                    document.getElementById('clearButton').disabled = false;
+                });
+            } else if (xhr.status === 400) {
+              alert('测试版限制24小时内识别10次。The beta version is limited to 10 identifications within 24 hours.');
+            } else {
+                alert('失败 Failed');
+            }
+        };
+        xhr.send(formData);
+    }
+
+var like_c = document.getElementById('like_count');
+var edit_c = document.getElementById('feedback_count');
+var l = parseInt(like_c.innerText);
+var e = parseInt(edit_c.innerText);
+function thumbsUp() {
+    var content = document.getElementById('latex-input').value;
+    if (!imageId || content=='') {
+            alert('读取失败 File read failure');
+            return;
+        }
+    if (processLatexString(textData) != content) {
+            alert('不允编辑，Editing not allowed');
+            return;
+        }
+    sendFeedback(imageId, 1);
+    document.getElementById('edit-icon').classList.remove('edit-success');
+    document.getElementById('thumbs-down-icon').classList.remove('thumbs-down-failure');
+    document.getElementById('thumbs-up-icon').classList.add('thumbs-up-success');
+    like_c.innerText = l + 1;
+    edit_c.innerText = e;
+    leftc.innerText = lef + 0.5;
+    copyToClipboard();
+}
+
+function thumbsDown() {
+    var content = document.getElementById('latex-input').value;
+    if (!imageId || content=='') {
+            alert('读取失败 File read failure');
+            return;
+        }
+    sendFeedback(imageId, 0);
+    document.getElementById('edit-icon').classList.remove('edit-success');
+    document.getElementById('thumbs-up-icon').classList.remove('thumbs-up-success');
+    document.getElementById('thumbs-down-icon').classList.add('thumbs-down-failure');
+    like_c.innerText = l + 1;
+    edit_c.innerText = e;
+    leftc.innerText = lef + 0.5;
+}
+
+function editResult() {
+    var content = document.getElementById('latex-input').value;
+    if (!imageId || content=='') {
+            alert('读取失败 File read failure');
+            return;
+        }
+    if (processLatexString(textData) == content || content=='') {
+            alert('未经编辑 Unedited');
+            return;
+        }
+    sendFeedback(imageId, content);
+    document.getElementById('thumbs-down-icon').classList.remove('thumbs-down-failure');
+    document.getElementById('thumbs-up-icon').classList.remove('thumbs-up-success');
+    document.getElementById('edit-icon').classList.add('edit-success');
+    edit_c.innerText = e + 1;
+    like_c.innerText = l;
+    leftc.innerText = lef + 2;
+    copyToClipboard();
+}
+
+function sendFeedback(imageId, feedback) {
+    if (feedbackSuccessCount > 5) {
+        alert('禁止用户多次反馈');
+        return;
+    }
+      var url = '/submit-feedback/'+ imageId + '/';
+
+      var data = new FormData();
+      data.append('feedback', feedback);
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', url, true);
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+            feedbackSuccessCount++;
+        } else {
+          alert('反馈失败 Feedback failure');
+        }
+      };
+      xhr.send(data);
+    }
+
+    function showProgressBar(seconds, callback) {
+        var progressBar = document.getElementById('progress-bar-inner');
+        progressBar.style.width = '100%';
+        progressBar.style.transition = 'width ' + seconds + 's linear';
+
+        setTimeout(function () {
+            progressBar.style.width = '0';
+            progressBar.style.transition = 'width 0s linear';
+
+            callback();
+        }, seconds * 1000);
+    }
+
+    function displayTextAsLatex(textData) {
+        document.getElementById('latex-input').value = textData;
+        updateMath();
+    }
+
+    function checkTextData(imageId) {
+        var getTextDataUrl = '/get-text-data/' + imageId + '/';
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', getTextDataUrl, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                textData = response.text_data;
+
+                if (textData) {
+                    displayTextAsLatex(processLatexString(textData));
+                } else {
+                    alert('No text data available for this image.');
+                }
+            } else {
+                alert('Failed to retrieve text data.');
+            }
+        };
+        xhr.send();
+    }
+
+    function copyToClipboardMl() {
+        var inputText = document.getElementById('latex-input').value;
+        var mathML = MathJax.tex2mml(inputText);
+        var textarea = document.createElement("textarea");
+        textarea.textContent = mathML;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+    }
+    function copyToClipboardMd() {
+      var textarea = document.createElement("textarea");
+      textarea.textContent = textData;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+    function copyToClipboard() {
+      var textarea = document.createElement("textarea");
+      textarea.textContent = dejax(processLatexString(textData));
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+    function clearImage() {
+        document.getElementById('drop-zone').innerHTML = '<h4>拖拽或单击后Ctrl-V图片到此处，或双击选择图片文件。</h4><p>Drag and drop or clik and Ctrl-V to insert an image here, or double-click to select an image file.</p>';
+        document.getElementById('latex-input').value = '';
+        updateMath();
+        document.getElementById('drop-zone').style.pointerEvents = 'auto';
+        feedbackSuccessCount = 0;
+        document.getElementById('thumbs-down-icon').classList.remove('thumbs-down-failure');
+        document.getElementById('thumbs-up-icon').classList.remove('thumbs-up-success');
+        document.getElementById('edit-icon').classList.remove('edit-success');
+        lef = leftc.innerText;
+    }
+    function processLatexString(latexStr) {
+        latexStr = latexStr.replace(/\$\$ \$\$/g, ' \\\\ ').replace(/\$\$(.*?)\$\$/g, function(match, block) {
+            if (block.includes('\\\\') && !block.includes('end')) {
+                let splitParts = block.split('\\\\');
+                let newParts = splitParts.map(function(part) {
+                    if (part.includes('=') || part.includes('\\leq') || part.includes('\\geq')) {
+                        part = part.replace(/\\leq|\\geq|=/, '&$&');
+                    } else {
+                        part = '&' + part;
+                    }
+                    return part;
+                });
+                block = newParts.join('\\\\').replace(/\\\\/g, '\\\\\n');
+            }
+            return '\n\\begin{align}\n' + block + '\n\\end{align}\n';
+        });
+        latexStr = latexStr.replace(/\$/g, ' \$ ').replace(/\</g, '\< ').replace(/\*\*(.*?)\*\*/g, '$\\textbf{$1}$');
+        latexStr = latexStr.replace(/(?<!\$)\b_(.*?)_\b(?![{])(?!\$)/g, '$\\textit{$1}$');
+        return latexStr;
+    }
+    function dejax(latexStr) {
+    latexStr = latexStr.replace(/(\$\\textit\{(.*?)\}\$)/g, '\\textit{$2}').replace(/(\$\\textbf\{(.*?)\}\$)/g, '\\textbf{$2}');
+    return latexStr;
+}
+    function createObject(object, variableName){
+        globalThis[variableName] = object
+    }
+    function togglePopup(popupId) {
+    var popup = document.getElementById(popupId);
+    popup.style.display = (popup.style.display === 'block') ? 'none' : 'block';
+  }
+
+  function closePopup(popupId) {
+    document.getElementById(popupId).style.display = 'none';
+  }
+
+  document.getElementById('qqIcon').addEventListener('click', function() {
+    togglePopup('qqPopup');
+  });
+
+  document.getElementById('wechatIcon').addEventListener('click', function() {
+    togglePopup('wechatPopup');
+  });
+</script>
+
+</script>
+<py-script>
+    from js import document, console, Uint8Array, File, createObject
+    from pyodide import create_proxy
+    import asyncio
+    import io
+
+    from PIL import Image, ImageOps
+
+    async def upload_change(opencvFile):
+        array_buf = Uint8Array.new(await opencvFile.arrayBuffer())
+        bytes_list = bytearray(array_buf)
+        my_bytes = io.BytesIO(bytes_list)
+        my_image = Image.open(my_bytes)
+        palette_image = my_image.convert("1")
+        my_stream = io.BytesIO()
+        palette_image.save(my_stream, format="PNG")
+        return File.new([Uint8Array.new(my_stream.getvalue())], "new_image_file.png", {type: "image/png"})
+    createObject(create_proxy(upload_change), "pilcomp")
+</py-script>
+</body>
+</html>
