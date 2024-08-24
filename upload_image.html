@@ -4,8 +4,8 @@
     <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数玄透镜 MaThaumoMeter</title>
-    <link rel="icon" href="https://i2.mcmod.cn/item/icon/128x128/7/77292.png?v=9" type="image/png">
+    <title>MixTeX</title>
+    <link rel="icon" href="https://github.com/RQLuo/MixTeX-Latex-OCR/raw/main/demo/icon.png" type="image/png">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.5.1/css/all.css">
     <script src="https://docs.opencv.org/4.5.5/opencv.js"></script>
     <!-- Include MathJax script -->
@@ -21,6 +21,40 @@
       };
     </script>
     <style>
+
+    .containert {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        max-width: 765px;
+        text-align: center;
+    }
+    h2 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+    p {
+        color: #2e2e2e;
+        line-height: 1.6;
+        margin: 10px 0;
+    }
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+    ul li {
+        margin: 10px 0;
+    }
+    ul li::before {
+        content: "• ";
+        color: #007bff;
+        font-weight: bold;
+    }
+    .highlight {
+        color: #007bff;
+        font-weight: bold;
+    }
         img {
             display: inline;
         }
@@ -33,12 +67,9 @@
             margin-right: auto;
         }
         #logo {
-            width: 50px;
-            height: 50px;
+            width: 200px;
+            height: 76px;
             position: relative;
-            top: -3px;
-            left: 27.6%;
-            transform: translateX(-50%);
         }
 
         #progress-bar {
@@ -153,7 +184,7 @@
             margin-top: 20px;
             border: 2px solid #00000069;
             width: 100%;
-            height: 100px;
+            height: 200px;
             border-radius: 5px;
         }
         .result-container {
@@ -240,9 +271,26 @@
 </head>
 <body>
         <header>
-          <h1><img id="logo" src="https://i2.mcmod.cn/item/icon/128x128/7/77292.png?v=9" alt="Logo"> 数玄透镜 MaThaumoMeter</h1>
+          <h1><img id="logo" src="https://github.com/RQLuo/MixTeX-Latex-OCR/raw/main/demo/icon.png" alt="Logo"></h1>
         </header>
-        <h4>欢迎体验数玄透镜，一款专注于 LaTeX 英文混合公式的 OCR 识别工具。</h4>
+        <a href="https://discord.gg/qrnmgBKH">
+            <img src="https://img.shields.io/badge/Discord-Join%20Chat-7289DA" alt="Discord"/>
+          </a>
+          <a href="https://github.com/RQLuo/MixTeX-Latex-OCR/">
+            <img src="https://img.shields.io/badge/GitHub-MixTeX--Latex--OCR-black" alt="GitHub"/>
+          </a>
+          <a href="https://www.youtube.com/watch?v=PqQdQ5xT-vk">
+            <img src="https://img.shields.io/badge/%20Demo-Video%20-white" alt="Demo Video"/>
+          </a>
+        <a href="https://arxiv.org/abs/2406.17148">
+            <img src="https://img.shields.io/badge/Paper-arxiv.2406.17148-white" alt="Paper"/>
+          </a>
+          <a href="https://colab.research.google.com/github/RQLuo/MixTeX/blob/main/MixTex_Demo.ipynb" target="_parent">
+            <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+          </a>
+          <a href="https://huggingface.co/MixTex/ZhEn-Latex-OCR">
+            <img src="https://img.shields.io/badge/🤗%20Hugging%20Face-blue" alt="Hugging Face Spaces"/>
+          </a>
 
 <div id="drop-zone" onclick="openFileExplorer()">
     <h4>拖拽或单击后Ctrl-V图片到此处，或双击选择图片文件。</h4>
@@ -292,14 +340,14 @@
     <button>
         <i class="fa-brands fa-weixin" id="wechatIcon"></i>
         <div class="popup" id="wechatPopup">
-          <img src="https://picx.zhimg.com/70/v2-8eb3d80a422698eddb90cc5e0df15fef_1440w.avis?source=172ae18b&biz_tag=Post" alt="QQ Popup">
+          <img src="https://github.com/RQLuo/MixTeX-Latex-OCR/blob/main/demo/donate.png?raw=true" alt="QQ Popup">
           <span class="close-btn" onclick="closePopup('wechatPopup')">&times;</span>
         </div>
     </button>
     <button>
         <i class="fab fa-qq" id="qqIcon"></i>
         <div class="popup" id="qqPopup">
-          <img src="https://picx.zhimg.com/70/v2-cb0c8d9b04e2c9f25e9e93d15b0de851_1440w.avis?source=172ae18b&biz_tag=Post" alt="QQ Popup">
+          <img src="https://github.com/RQLuo/MixTeX-Latex-OCR/blob/main/demo/qq.png?raw=true" alt="QQ Popup">
           <span class="close-btn" onclick="closePopup('qqPopup')">&times;</span>
         </div>
     </button>
@@ -315,25 +363,11 @@
     </button>
     <button class="upload-button" onclick="copyToClipboardMl()"><i class="fas fa-copy"></i>  MathML(word)</button>
     <button class="upload-button" onclick="copyToClipboard()"><i class="fas fa-copy"></i>  LaTeX </button>
-    <button class="upload-button" onclick="copyToClipboardMd()"><i class="fas fa-copy"></i>  Markdown</button>
+    <button id="toggleBinaryButton" class="upload-button" onclick="toggleBinary()">
+        <i class="fas fa-adjust"></i> 原图 Original
+    </button>
     <button id="clearButton" class="clear-button" onclick="clearImage()"> <i class="fas fa-trash-alt"></i> 清除 Clear</button>
 </div>
-
-<section>
-    <p> <br> </p>
-    <p> <br> </p>
-    <p> <br> </p>
-    <p><span style="color:rgb(0, 0, 0); font-weight:bold;">如果出现乱码或识别错误，请注意以下几点： </span>
-    <span style="color:rgb(108, 0, 0); font-weight:bold;">1. 避免拦腰截断一个公式或句子。2. 避免出现连续大范围的留白。3. 避免把所有内容挤到一侧其余空白。4.避免混合中文，目前仅支持英文混合公式。5. 上下文本长度最好不超过 3 句+1 公式。</span> </p>
-</section>
-
-<section>
-    <p> <br> </p>
-    <p><span style="color:rgb(0, 0, 0); font-weight:bold;">数玄透镜 MaThaumoMeter</span> 采用了 Meta 开源的大模型，通过一周的测试和漏洞修复，已经能以胜任复杂的识别。可以处理复杂的英文混合公式，无论是基本的数学表达式还是涉及到复杂符号和变量的公式。由于我们基于 BERT 模型，有时可能会出现幻觉，甚至还会自以为是地纠正一些“笔误”，并且还会保留参数较小的大模型的通病，也就是是是是是是是是是是是是是是</p>
-    <p> <br> </p>
-    <p>数玄透镜将帮助您更高效地处理文本混合公式，欢迎您的尝试和反馈。</p>
-    <p>如有疑问可以加QQ群讨论：612725068；此外，群里还有该应用的Windows客户端版本。</p>
-</section>
 
 <script>
     var fileInput;
@@ -386,21 +420,38 @@
         handleImg(file, uploadImage);
     };
 }
+var isBinary = false;
 
-    function handleImg(file, callback) {
+function toggleBinary() {
+    isBinary = !isBinary;
+    if (isBinary) {
+        document.getElementById('toggleBinaryButton').innerHTML = '<i class="fas fa-adjust"></i> 二值化 Binary';
+
+    } else {
+        document.getElementById('toggleBinaryButton').innerHTML = '<i class="fas fa-adjust"></i> 原图 Original';
+
+    }
+}
+function handleImg(file, callback) {
     var reader = new FileReader();
     reader.onload = function (e) {
         var img = new Image();
-        img.onload = function() {
+        img.onload = function () {
             var src = cv.imread(img);
             var dst = new cv.Mat();
-            cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
-            let ksize = new cv.Size(5, 1);
-            cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
-            cv.adaptiveThreshold(dst, src, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 15, 2);
-            cv.threshold(dst, dst, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU);
-            cv.addWeighted(src, 0.4, dst, 0.6, 0, dst);
-            cv.threshold(dst, dst, 0, 255, cv.THRESH_BINARY);
+
+            if (isBinary) {
+                cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
+                let ksize = new cv.Size(5, 1);
+                cv.GaussianBlur(dst, dst, ksize, 0, 0, cv.BORDER_DEFAULT);
+                cv.adaptiveThreshold(dst, src, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 15, 2);
+                cv.threshold(dst, dst, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU);
+                cv.addWeighted(src, 0.4, dst, 0.6, 0, dst);
+                cv.threshold(dst, dst, 0, 255, cv.THRESH_BINARY);
+            } else {
+                dst = src.clone(); // 如果不做二值化，直接使用原图
+            }
+
             var canvas = document.createElement('canvas');
             canvas.width = dst.cols;
             canvas.height = dst.rows;
@@ -409,14 +460,15 @@
             var processedImg = new Image();
             processedImg.src = canvas.toDataURL();
 
-            canvas.toBlob(function(blob) {
-                var opencvFile = new File([blob], file.name, {type: file.type});
+            canvas.toBlob(function (blob) {
+                var opencvFile = new File([blob], file.name, { type: file.type });
                 document.getElementById('drop-zone').innerHTML = '';
                 document.getElementById('drop-zone').appendChild(processedImg);
                 pilcomp(opencvFile).then(outimg => {
-                callback(outimg);
+                    callback(outimg);
                 });
             }, file.type);
+
             src.delete();
             dst.delete();
         };
@@ -427,43 +479,85 @@
 var leftc = document.getElementById('left_count');
 var lef = parseFloat(leftc.innerText);
 
-    function uploadImage(file) {
-        if (!file) {
-            alert('读取失败 File read failure');
-            return;
-        }
+function uploadImage(file) {
+    if (!file) {
+        alert('读取失败 File read failure');
+        return;
+    }
 
-        if (file.size > 30 * 1024) {
+    if (file.size > 30 * 1024) {
         alert('图片过大，缩小截图尺寸。 The image is too large, reduce the screenshot size.');
         return;
     }
-        var formData = new FormData();
-        formData.append('image', file);
+    var formData = new FormData();
+    formData.append('image', file);
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '', true);
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                var response = JSON.parse(xhr.responseText);
-                imageId = response.image_id;
-                var total_count = document.getElementById('total_upload_count');
-                lef--;
-                leftc.innerText = lef;
-                total_count.innerText = parseInt(total_count.innerText) + 1;
-                document.getElementById('drop-zone').style.pointerEvents = 'none';
-                document.getElementById('clearButton').disabled = true;
-                showProgressBar(70, function () {
-                    checkTextData(imageId);
-                    document.getElementById('clearButton').disabled = false;
-                });
-            } else if (xhr.status === 400) {
-              alert('测试版限制24小时内识别10次。The beta version is limited to 10 identifications within 24 hours.');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '', true);
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            imageId = response.image_id;
+            var total_count = document.getElementById('total_upload_count');
+            lef--;
+            leftc.innerText = lef;
+            total_count.innerText = parseInt(total_count.innerText) + 1;
+            document.getElementById('drop-zone').style.pointerEvents = 'none';
+            document.getElementById('clearButton').disabled = true;
+            checkTextData(imageId);
+        } else if (xhr.status === 400) {
+            alert('测试版限制24小时内识别10次。The beta version is limited to 10 identifications within 24 hours.');
+        } else {
+            alert('失败 Failed');
+        }
+    };
+    xhr.send(formData);
+}
+
+function showProgressBar(seconds, callback) {
+    var progressBar = document.getElementById('progress-bar-inner');
+    progressBar.style.width = '100%';
+    progressBar.style.transition = 'width ' + seconds + 's linear';
+    setTimeout(function () {
+        progressBar.style.width = '0';
+        progressBar.style.transition = 'width 0s linear';
+        callback();
+    }, seconds * 1000);
+}
+
+function displayTextAsLatex(textData) {
+    document.getElementById('latex-input').value = textData;
+    updateMath();
+}
+
+function checkTextData(imageId, retryCount = 0) {
+    var getTextDataUrl = '/get-text-data/' + imageId + '/';
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', getTextDataUrl, true);
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            textData = response.text_data;
+            if (textData) {
+                displayTextAsLatex(textData);
+                document.getElementById('clearButton').disabled = false;
             } else {
-                alert('失败 Failed');
+                if (retryCount < 5) { // Limit retries to 5 times
+                    showProgressBar(5, function() {
+                        checkTextData(imageId, retryCount + 1);
+                    });
+                } else {
+                    alert('No text data available for this image after multiple attempts.');
+                    document.getElementById('clearButton').disabled = false;
+                }
             }
-        };
-        xhr.send(formData);
-    }
+        } else {
+            alert('Failed to retrieve text data.');
+            document.getElementById('clearButton').disabled = false;
+        }
+    };
+    xhr.send();
+}
 
 var like_c = document.getElementById('like_count');
 var edit_c = document.getElementById('feedback_count');
@@ -475,7 +569,7 @@ function thumbsUp() {
             alert('读取失败 File read failure');
             return;
         }
-    if (processLatexString(textData) != content) {
+    if (textData != content) {
             alert('不允编辑，Editing not allowed');
             return;
         }
@@ -510,7 +604,7 @@ function editResult() {
             alert('读取失败 File read failure');
             return;
         }
-    if (processLatexString(textData) == content || content=='') {
+    if (textData == content || content=='') {
             alert('未经编辑 Unedited');
             return;
         }
@@ -546,45 +640,6 @@ function sendFeedback(imageId, feedback) {
       xhr.send(data);
     }
 
-    function showProgressBar(seconds, callback) {
-        var progressBar = document.getElementById('progress-bar-inner');
-        progressBar.style.width = '100%';
-        progressBar.style.transition = 'width ' + seconds + 's linear';
-
-        setTimeout(function () {
-            progressBar.style.width = '0';
-            progressBar.style.transition = 'width 0s linear';
-
-            callback();
-        }, seconds * 1000);
-    }
-
-    function displayTextAsLatex(textData) {
-        document.getElementById('latex-input').value = textData;
-        updateMath();
-    }
-
-    function checkTextData(imageId) {
-        var getTextDataUrl = '/get-text-data/' + imageId + '/';
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', getTextDataUrl, true);
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                var response = JSON.parse(xhr.responseText);
-                textData = response.text_data;
-
-                if (textData) {
-                    displayTextAsLatex(processLatexString(textData));
-                } else {
-                    alert('No text data available for this image.');
-                }
-            } else {
-                alert('Failed to retrieve text data.');
-            }
-        };
-        xhr.send();
-    }
-
     function copyToClipboardMl() {
         var inputText = document.getElementById('latex-input').value;
         var mathML = MathJax.tex2mml(inputText);
@@ -605,7 +660,7 @@ function sendFeedback(imageId, feedback) {
     }
     function copyToClipboard() {
       var textarea = document.createElement("textarea");
-      textarea.textContent = dejax(processLatexString(textData));
+      textarea.textContent = dejax(textData);
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand("copy");
@@ -622,30 +677,9 @@ function sendFeedback(imageId, feedback) {
         document.getElementById('edit-icon').classList.remove('edit-success');
         lef = leftc.innerText;
     }
-    function processLatexString(latexStr) {
-        latexStr = latexStr.replace(/\$\$ \$\$/g, ' \\\\ ').replace(/\$\$(.*?)\$\$/g, function(match, block) {
-            if (block.includes('\\\\') && !block.includes('end')) {
-                let splitParts = block.split('\\\\');
-                let newParts = splitParts.map(function(part) {
-                    if (part.includes('=') || part.includes('\\leq') || part.includes('\\geq')) {
-                        part = part.replace(/\\leq|\\geq|=/, '&$&');
-                    } else {
-                        part = '&' + part;
-                    }
-                    return part;
-                });
-                block = newParts.join('\\\\').replace(/\\\\/g, '\\\\\n');
-            }
-            return '\n\\begin{align}\n' + block + '\n\\end{align}\n';
-        });
-        latexStr = latexStr.replace(/\$/g, ' \$ ').replace(/\</g, '\< ').replace(/\*\*(.*?)\*\*/g, '$\\textbf{$1}$');
-        latexStr = latexStr.replace(/(?<!\$)\b_(.*?)_\b(?![{])(?!\$)/g, '$\\textit{$1}$');
-        return latexStr;
-    }
-    function dejax(latexStr) {
-    latexStr = latexStr.replace(/(\$\\textit\{(.*?)\}\$)/g, '\\textit{$2}').replace(/(\$\\textbf\{(.*?)\}\$)/g, '\\textbf{$2}');
-    return latexStr;
-}
+
+
+
     function createObject(object, variableName){
         globalThis[variableName] = object
     }
@@ -681,11 +715,58 @@ function sendFeedback(imageId, feedback) {
         bytes_list = bytearray(array_buf)
         my_bytes = io.BytesIO(bytes_list)
         my_image = Image.open(my_bytes)
-        palette_image = my_image.convert("1")
+        palette_image = my_image.convert("P")
         my_stream = io.BytesIO()
         palette_image.save(my_stream, format="PNG")
         return File.new([Uint8Array.new(my_stream.getvalue())], "new_image_file.png", {type: "image/png"})
     createObject(create_proxy(upload_change), "pilcomp")
 </py-script>
+
+<h4> <br> </h4>
+<div class="containert">
+    Mix<span class="highlight">Tex</span>：手写 LaTeX 中英文混文内公式与表格OCR小程序，下载解压zip即可在win10&11上离线运行。
+    Mix<span class="highlight">Tex</span>：A lightweight OCR application for handwritten LaTeX formulas and tables, with support for inline formulas and zh&en. Download and extract the zip file to run offline on Windows 10&11.</li>
+</div>
+
+<div style="text-align: center; margin-top: 20px;">
+    <a href="https://github.com/RQLuo/MixTeX-Latex-OCR/releases/download/MixTeX-v2.2.3/MixTeX.zip">
+        <button class="upload-button">
+            <i class="fas fa-download"></i> 下载 Download MixTeX.zip
+        </button>
+    </a>
+</div>
+<h4> <br> </h4>
+<div class="containert">
+    <h4>使用说明</h4>
+    <ul>
+        <li><span class="highlight">剪切板开启</span>：使用前请按 <span class="highlight">Win + V</span> 打开剪切板功能。<br> <span class="highlight">Enable Clipboard</span>: Press <span class="highlight">Win + V</span> to enable the clipboard before use.</li>
+        <li><span class="highlight">无需安装</span>：直接运行 <span class="highlight">exe</span> 文件，无需安装。<br> <span class="highlight">No Installation Needed</span>: Directly run the <span class="highlight">exe</span> file, no installation required.</li>
+        <li><span class="highlight">离线推理</span>：该程序无需联网，无需 GPU，模型可在 CPU 上进行推理。<br> <span class="highlight">Offline Inference</span>: This program works offline, no GPU needed, and the model can run on a CPU.</li>
+        <li><span class="highlight">系统兼容性</span>：目前仅支持 Windows 10 和 11 系统。<br> <span class="highlight">System Compatibility</span>: Currently, only Windows 10 and 11 are supported.</li>
+    </ul>
+
+    <h4>使用注意事项</h4>
+    <ul>
+        <li><span class="highlight">截图尺寸</span>：请确保截图尺寸不超过 448×448，超出部分将会被等比压缩处理。<br> <span class="highlight">Screenshot Size</span>: Ensure the screenshot size does not exceed 448×448. Excess portions will be proportionally compressed.</li>
+        <li><span class="highlight">支持内容</span>：目前仅支持中英文混合手写公式和简单表格的识别。<br> <span class="highlight">Supported Content</span>: Currently supports mixed Chinese-English handwritten formulas and simple table recognition.</li>
+        <li><span class="highlight">右键菜单功能</span>：右键点击图标，可选择关闭、最小化、数据标注、文内公式转义等功能。<br> <span class="highlight">Right-click Menu</span>: Right-click the icon to select functions like close, minimize, data annotation, and in-text formula escaping.</li>
+        <li><span class="highlight">开源免费</span>：本程序完全开源免费，我们欢迎大家提供真实使用反馈，以帮助优化模型。<br> <span class="highlight">Open Source & Free</span>: This program is completely open-source and free. We welcome real user feedback to help optimize the model.</li>
+    </ul>
+
+    <h4>常见错误</h4>
+    <ul>
+        <li>ONNX 文件与 <span class="highlight">exe</span> 文件未放置在同一目录下。<br> The ONNX file and the <span class="highlight">exe</span> file are not placed in the same directory.</li>
+        <li>未按 <span class="highlight">Win + V</span> 打开剪切板功能。<br> Did not press <span class="highlight">Win + V</span> to enable the clipboard function.</li>
+        <li>若出现 <span class="highlight">tk</span> 错误，请下载无图形界面的版本。<br> If a <span class="highlight">tk</span> error occurs, please download the version without a graphical interface.</li>
+    </ul>
+
+    <h4>用户协议</h4>
+    <ul>
+        <li>本程序遵循 AGPL-3.0 许可证。<br> This program follows the AGPL-3.0 license.</li>
+        <li>基于该模型的任何衍生品均不得用于商业用途。<br> Any derivatives based on this model cannot be used for commercial purposes.</li>
+        <li>使用者需自行承担因非法使用本软件所产生的一切后果。<br> Users are responsible for any consequences arising from illegal use of this software.</li>
+    </ul>
+</div>
 </body>
+
 </html>
